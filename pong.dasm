@@ -1,0 +1,343 @@
+
+	include "nesdefs.dasm"
+
+;;;;; VARIABLES
+
+	seg.u ZEROPAGE
+	org $0
+
+;ScrollPos	word	; used during NMI
+P1_Y		byte	; 
+Ball_X		byte	;
+Ball_Y		byte	;
+Ball_DX		byte	;
+Ball_DY		byte	;
+Temp1		byte	;
+;Rand		byte	; random number
+
+; OAM sprite buffer
+SpriteBuf	equ	$200
+
+
+
+;;;;; NES CARTRIDGE HEADER
+
+	NES_HEADER 0,2,1,NES_MIRR_HORIZ ; mapper 0, 2 PRGs, 1 CHR
+
+;;;;; START OF CODE
+
+Start:	subroutine
+; wait for PPU warmup; clear CPU RAM
+	NES_INIT	; set up stack pointer, turn off PPU
+        jsr WaitSync	; wait for VSYNC
+        jsr WaitSync	; wait for VSYNC
+        jsr ClearRAM	; clear RAM
+        jsr WaitSync	; wait for VSYNC (and PPU warmup)
+
+; set palette and nametable VRAM
+	jsr SetPalette	; set palette colors
+	;jsr FillVRAM		;set PPU RAM
+	jsr HelloVRAM	; print message in name table
+
+        jsr WaitSync		;wait for VSYNC (and PPU warmup)
+        ;jsr InitSprites
+	;jsr Test_Sprites
+        jsr Init_Sprites
+        jsr Init_Vars
+
+; reset PPU address and scroll registers
+        lda #0
+        sta PPU_ADDR
+        sta PPU_ADDR	; PPU addr = $0000
+        sta PPU_SCROLL
+        sta PPU_SCROLL  ; PPU scroll = $0000
+
+; activate PPU graphics
+        ;lda #MASK_BG
+        lda #MASK_BG|MASK_SPR
+        sta PPU_MASK 	; enable rendering
+        lda #CTRL_NMI
+        sta PPU_CTRL	; enable NMI
+.endless
+	jmp .endless	; endless loop
+
+
+
+; set palette colors
+SetPalette: subroutine
+; set PPU address to palette start
+	PPU_SETADDR $3f00
+        ldy #0
+.loop:
+	lda Palette,y	; lookup byte in ROM
+	sta PPU_DATA	; store byte to PPU data
+        iny		; Y = Y + 1
+        cpy #32		; is Y equal to 32?
+	bne .loop	; not yet, loop
+        rts		; return to caller
+
+; fill video RAM with "Hello World" msg
+HelloVRAM: subroutine
+; set PPU address to name table A (row 1, col 1)
+	PPU_SETADDR $2021
+	ldy #0		; set Y counter to 0
+.loop:
+	lda HelloMsg,y	; get next character
+        beq .end	; is 0? exit loop
+	sta PPU_DATA	; store+advance PPU
+        iny		; next character
+	bne .loop	; loop
+.end
+        rts		; return to caller
+
+; fill video RAM
+FillVRAM: subroutine
+	PPU_SETADDR $2000
+	ldy #$10	; Y = 16
+        ldx #0
+.loop:
+	stx PPU_DATA	; X -> PPU data port
+	inx		; X = X + 1
+	bne .loop	; repeat until 256 bytes
+	dey		; Y = Y - 1
+	bne .loop	; repeat until Y is 0
+        rts		; return to caller
+        
+; initialize OAM data
+InitSprites: subroutine
+	lda #1		; A = 1
+        ldx #0		; X = 0
+.loop
+	sta SpriteBuf,x	; store to OAM buffer
+        jsr NextRandom	; get next random number
+        inx		; X = X + 1
+        bne .loop	; loop until X wraps
+        rts		; return to caller
+
+
+MoveSprites: subroutine
+	lda #1		; A = 1
+        ldx #0		; X = 0
+.loop
+	sta Temp1	; save A
+        and #3		; keep lower 2 bits
+        clc		; clear carry before add
+        adc SpriteBuf,x	; add to sprite buffer
+	sta SpriteBuf,x ; store in sprite buffer
+        lda Temp1	; restore A
+        jsr NextRandom	; get next random number
+        inx		; X = X + 1
+        bne .loop	; loop until X wraps
+        rts		; return to caller
+
+
+Update_Sprites: subroutine
+	
+	; ---- Ball
+        
+	; sprite Y
+        lda Ball_Y
+	sta SpriteBuf + 0 ; store in sprite buffer
+
+        ; sprite X
+        lda Ball_X
+	sta SpriteBuf + 3 ; store in sprite buffer
+
+	; ---- P1
+        
+	; sprite 1 Y
+        lda P1_Y
+	sta SpriteBuf + 4
+
+	; sprite 1 Y
+        clc
+        adc #8
+	sta SpriteBuf + 8
+
+	rts
+
+
+Init_Sprites: subroutine
+
+	ldx #0		; index
+        ldy #4 * 3	; counter
+.loop	
+	lda OAM_Data_Init,x
+        sta SpriteBuf,x ; store in sprite buffer
+        inx		; increment index
+        dey		; decrement counter
+        bne .loop	; 
+        rts
+
+
+
+Init_Vars: subroutine
+
+	lda #128 - 4
+        sta Ball_X
+
+	lda #120 - 4
+        sta Ball_Y
+        sta P1_Y
+	
+	lda #1
+        sta Ball_DX
+        sta Ball_DY
+	
+	rts
+        
+
+
+Move_Ball: subroutine
+	
+        ; Ball_X += Ball_DX
+	
+	lda Ball_X	; A = Ball_X
+        clc		; clear carry
+        adc Ball_DX	; A = A + Ball_DX
+        sta Ball_X	; Ball_X = A
+
+	; if (Ball_X == 255-8) Ball_DX = -1
+        cmp #0 + 8
+        bne .continue
+
+	lda #1
+        sta Ball_DX
+
+.continue:
+	; if (Ball_X == 255-8) Ball_DX = -1
+	lda Ball_X
+        cmp #255 - 8 - 8
+        bne .return
+
+	lda #-1
+        sta Ball_DX
+        
+.return:
+	rts
+        
+        
+        
+Read_Input: subroutine
+	jsr ReadJoypad0	; read first controller
+        
+	and #%00001100	; keep bits 3 and 2 (up and down)
+	
+	tax		; X = A
+
+        ; if (input == DOWN) P1_Y++
+        cmp #4
+        bne .cont_1
+
+        lda P1_Y
+        clc		; clear carry
+        adc #1
+        sta P1_Y
+        
+	; if (P1_Y == 240-16-16) P1_Y--
+        cmp #240-16-16
+        bne .cont_1
+
+	dec P1_Y
+
+	jmp .return
+
+.cont_1:
+	txa		; A = X
+
+	; if (input == UP) P1_Y--
+	cmp #8
+        bne .return
+        
+        lda P1_Y
+        sec		; set carry
+        sbc #1
+        sta P1_Y
+
+	; if (P1_Y == 0+8) P1_Y++
+        cmp #0+8
+        bne .return
+
+	inc P1_Y
+
+.return:
+
+	rts
+        
+        
+;;;;; COMMON SUBROUTINES
+
+	include "nesppu.dasm"
+
+
+
+
+
+;;;;; INTERRUPT HANDLERS
+
+NMIHandler: subroutine
+	SAVE_REGS
+        
+        ; code here
+
+	; load sprites
+	lda #$02	; page 2 ($0200)
+        sta PPU_OAM_DMA	; start DMA transfer
+
+	;jsr MoveSprites	; move sprites
+	jsr Read_Input
+        jsr Move_Ball
+        
+        jsr Update_Sprites
+
+	RESTORE_REGS
+	rti
+
+
+
+
+
+
+;;;;; CONSTANT DATA
+
+; ASCII message to display on screen
+HelloMsg:
+	.byte "Pong NES Test !!! v.0.0.10", 0
+        ;.byte 0		; zero terminator
+
+Palette:
+	hex 1f		;screen color
+	hex 01112100	;background 0
+        hex 02122200	;background 1
+        hex 02112100	;background 2
+        hex 01122200	;background 3
+        hex 19293900	;sprite 0
+        hex 1a2a3a00	;sprite 1
+        hex 1b2b3b00	;sprite 2
+        hex 1c2c3c	;sprite 3
+
+OAM_Data_Init:
+	; Ball
+        .byte 	120 - 4	; Y
+        .byte	25	; tile #
+        .byte	0	; attributes
+        .byte	128 - 4	; X
+
+	; P1
+        .byte 	120 - 4	; Y
+        .byte	133	; tile #
+        .byte	0	; attributes
+        .byte	16	; X
+        
+        ;	Y,	tile #,	attrib,	X
+        .byte	124, 	133, 	0, 	16
+
+;;;;; CPU VECTORS
+
+	NES_VECTORS
+
+;;;;; TILE SETS
+
+	org $10000
+        incbin "jroatch.chr"
+        incbin "jroatch.chr"
