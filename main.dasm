@@ -6,14 +6,13 @@
 	seg.u ZEROPAGE
 	org $0
 
-;ScrollPos	word	; used during NMI
+P1_X		byte	; 
 P1_Y		byte	; 
 Ball_X		byte	;
 Ball_Y		byte	;
 Ball_DX		byte	;
 Ball_DY		byte	;
 Temp1		byte	;
-;Rand		byte	; random number
 
 ; OAM sprite buffer
 SpriteBuf	equ	$200
@@ -180,6 +179,9 @@ Init_Vars: subroutine
         sta Ball_Y
         sta P1_Y
 	
+	lda #16
+        sta P1_X
+        
 	lda #1
         sta Ball_DX
         sta Ball_DY
@@ -263,7 +265,32 @@ Read_Input: subroutine
 .return:
 
 	rts
+
+
+; Inputs:
+;   X: address of object 1 (X, Y coordinates)
+;   Y: address of object 2 (X, Y coordinates)
+Check_Collision: subroutine
+	
+        cmp 0,X		; compare A with Obj_1.X
+        cmp 1,X		; compare A with Obj_1.Y
         
+        cmp 0,Y		; compare A with Obj_2.X
+        cmp 1,Y		; compare A with Obj_2.Y
+        
+; comparisons: CMP, CPX, CPY
+
+;Relation	Z	C	N
+;register < operand	0	0	sign-bit of result
+;register = operand	1	1	0
+;register > operand	0	1	sign-bit of result
+;Meaning, we may dertermine the derivative relation "greater than or equal" (gte) by
+;checking just the carry flag (using instruction BCS):
+
+;Relation	Z	C	N
+;register ≥ operand	x	1	sign-bit of result
+
+	rts
         
 ;;;;; COMMON SUBROUTINES
 
@@ -302,7 +329,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.10", 0
+	.byte "Pong NES Test !!! v.0.0.11", 0
         ;.byte 0		; zero terminator
 
 Palette:

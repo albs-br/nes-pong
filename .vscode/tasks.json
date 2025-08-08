@@ -1,0 +1,63 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "windows": {
+        "options": {
+            "shell": {
+                "executable": "cmd.exe",
+                "args": [
+                    "/d", "/c"
+                ]
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "assembly",
+            "type": "shell",
+            "command": "C:\\Users\\Public\\nesdev\\dasm\\dasm.exe",
+                "args": [
+                    {
+                      "value": "main.dasm",
+                      "quoting": "strong"
+                    },
+
+                    {   "value": "-f3", "quoting": "escape" },
+                    
+                    {   "value": "-ooutput.nes", "quoting": "escape" },
+                ],
+            "problemMatcher": [],
+            "group": "build",
+            "presentation": {
+                "reveal": "always"
+            }
+        },
+        {
+            "command": "C:\\Users\\Public\\nesdev\\fceux\\fceux.exe",
+                "args": [
+                    {
+                        "value": "output.nes",
+                        "quoting": "weak"
+                    },
+                    
+                    //     // When changing this, it's necessary to first save this file before build, it will not work with
+                    //     // the "auto save all unsaved files before build" feature of VS Code (it executes this file before save)
+                  
+                ],
+            "label": "run fceux",
+            "type": "shell",
+            "dependsOn": [
+                "assembly"
+            ],
+            "problemMatcher": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "reveal": "always"
+            }
+        }
+    ]
+}
