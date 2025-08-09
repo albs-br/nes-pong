@@ -27,9 +27,9 @@ JOYPAD2		= $4017
 
 ; NOTE: I've put this outside of the PPU & APU, because it is a feature
 ; of the APU that is primarily of use to the PPU.
-OAM_DMA         = $4014
+OAM_DMA     = $4014
 ; OAM local RAM copy goes from $0200-$02FF:
-OAM_RAM         = $0200
+OAM_RAM     = $0200
 
 ; PPU_CTRL flags
 CTRL_NMI	= %10000000	; Execute Non-Maskable Interrupt on VBlank
@@ -88,23 +88,23 @@ NES_MIRR_QUAD	= 8
 	ENDM
 
 ;;;;; NES_INIT SETUP MACRO (place at start)
-        
-        MAC NES_INIT
-        sei			;disable IRQs
-        cld			;decimal mode not supported
-        ldx #$ff
-        txs			;set up stack pointer
-        inx			;increment X to 0
-        stx PPU_MASK		;disable rendering
-        stx DMC_FREQ		;disable DMC interrupts
-        stx PPU_CTRL		;disable NMI interrupts
+    
+    MAC NES_INIT
+    sei			;disable IRQs
+    cld			;decimal mode not supported
+    ldx #$ff
+    txs			;set up stack pointer
+    inx			;increment X to 0
+    stx PPU_MASK		;disable rendering
+    stx DMC_FREQ		;disable DMC interrupts
+    stx PPU_CTRL		;disable NMI interrupts
 	bit PPU_STATUS		;clear VBL flag
-        bit APU_CHAN_CTRL	;ack DMC IRQ bit 7
+    bit APU_CHAN_CTRL	;ack DMC IRQ bit 7
 	lda #$40
 	sta APU_FRAME		;disable APU Frame IRQ
 	lda #$0F
-	sta APU_CHAN_CTRL	;disable DMC, enable/init other channels.        
-        ENDM
+	sta APU_CHAN_CTRL	;disable DMC, enable/init other channels.    
+    ENDM
 
 ;;;;; NES_VECTORS - CPU vectors at end of address space
 
@@ -119,38 +119,38 @@ NES_MIRR_QUAD	= 8
 ;;;;; PPU_SETADDR <address> - set 16-bit PPU address
 
 	MAC PPU_SETADDR
-        lda #>{1}	; upper byte
-        sta PPU_ADDR
-        lda #<{1}	; lower byte
-        sta PPU_ADDR
-        ENDM
+    lda #>{1}	; upper byte
+    sta PPU_ADDR
+    lda #<{1}	; lower byte
+    sta PPU_ADDR
+    ENDM
 
 ;;;;; PPU_SETVALUE <value> - feed 8-bit value to PPU
-        
-        MAC PPU_SETVALUE
-        lda #{1}
-        sta PPU_DATA
-        ENDM
+    
+    MAC PPU_SETVALUE
+    lda #{1}
+    sta PPU_DATA
+    ENDM
 
 ;;;;; SAVE_REGS - save A/X/Y registers
 
-        MAC SAVE_REGS
-        pha
-        txa
-        pha
-        tya
-        pha
-        ENDM
+    MAC SAVE_REGS
+    pha
+    txa
+    pha
+    tya
+    pha
+    ENDM
 
 ;;;;; RESTORE_REGS - restore Y/X/A registers
 
-        MAC RESTORE_REGS
-        pla
-        tay
-        pla
-        tax
-        pla
-        ENDM
+    MAC RESTORE_REGS
+    pla
+    tay
+    pla
+    tax
+    pla
+    ENDM
 
 ;-------------------------------------------------------------------------------
 ; SLEEP clockcycles
@@ -161,24 +161,24 @@ NES_MIRR_QUAD	= 8
 
 NO_ILLEGAL_OPCODES = 1
 
-            MAC SLEEP            ;usage: SLEEP n (n>1)
+        MAC SLEEP        ;usage: SLEEP n (n>1)
 .CYCLES     SET {1}
 
-                IF .CYCLES < 2
-                    ECHO "MACRO ERROR: 'SLEEP': Duration must be > 1"
-                    ERR
-                ENDIF
+        IF .CYCLES < 2
+            ECHO "MACRO ERROR: 'SLEEP': Duration must be > 1"
+            ERR
+        ENDIF
 
-                IF .CYCLES & 1
-                    IFNCONST NO_ILLEGAL_OPCODES
-                        nop 0
-                    ELSE
-                        bit $00
-                    ENDIF
-.CYCLES             SET .CYCLES - 3
-                ENDIF
-            
-                REPEAT .CYCLES / 2
-                    nop
-                REPEND
-            ENDM
+        IF .CYCLES & 1
+            IFNCONST NO_ILLEGAL_OPCODES
+            nop 0
+            ELSE
+            bit $00
+            ENDIF
+.CYCLES         SET .CYCLES - 3
+        ENDIF
+        
+        REPEAT .CYCLES / 2
+            nop
+        REPEND
+        ENDM
