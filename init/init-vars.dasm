@@ -1,0 +1,31 @@
+Init_Vars: subroutine
+
+	lda #128 - 4
+    sta Ball_X
+
+	lda #120 - 4
+    sta Ball_Y
+    sta P1_Y
+
+	; lda #200
+	lda #16
+    sta P1_X
+
+	lda #16
+    sta P1_Height
+    
+    lda #4
+    sta P1_Width
+
+    lda #8
+    sta Ball_Width
+    sta Ball_Height
+
+	; lda #-1
+	lda #1
+    sta Ball_DX
+
+	lda #1
+    sta Ball_DY
+	
+	rts

@@ -1,0 +1,45 @@
+Read_Input: subroutine
+	jsr ReadJoypad0	; read first controller
+    
+	and #%00001100	; keep bits 3 and 2 (up and down)
+	
+	tax		; X = A
+
+    ; if (input == DOWN) P1_Y++
+    cmp #4
+    bne .cont_1
+
+    lda P1_Y
+    clc		; clear carry
+    adc #1
+    sta P1_Y
+    
+	; if (P1_Y == 240-16-16) P1_Y--
+    cmp #240-16-16
+    bne .cont_1
+
+	dec P1_Y
+
+	jmp .return
+
+.cont_1:
+	txa		; A = X
+
+	; if (input == UP) P1_Y--
+	cmp #8
+    bne .return
+    
+    lda P1_Y
+    sec		; set carry
+    sbc #1
+    sta P1_Y
+
+	; if (P1_Y == 0+8) P1_Y++
+    cmp #0+8
+    bne .return
+
+	inc P1_Y
+
+.return:
+
+	rts

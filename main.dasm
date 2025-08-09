@@ -1,29 +1,10 @@
 
-	include "nesdefs.dasm"
+	include "includes/nesdefs.dasm"
 
 ;;;;; VARIABLES
 
-	seg.u ZEROPAGE
-	org $0
+	include "variables.dasm"
 
-P1_X		byte	; 
-P1_Y		byte	; 
-P1_Width	byte	; 
-P1_Height	byte	; 
-Ball_X		byte	;
-Ball_Y		byte	;
-Ball_Width	byte	;
-Ball_Height	byte	;
-Ball_DX		byte	;
-Ball_DY		byte	;
-Temp1		byte	;
-
-; Adresses
-P1_Addr     equ #0
-Ball_Addr   equ #4
-
-; OAM sprite buffer
-SpriteBuf	equ	$200
 
 
 
@@ -110,32 +91,6 @@ FillVRAM: subroutine
 	bne .loop	; repeat until Y is 0
     rts		; return to caller
     
-; initialize OAM data
-InitSprites: subroutine
-	lda #1		; A = 1
-    ldx #0		; X = 0
-.loop
-	sta SpriteBuf,x	; store to OAM buffer
-    jsr NextRandom	; get next random number
-    inx		; X = X + 1
-    bne .loop	; loop until X wraps
-    rts		; return to caller
-
-
-MoveSprites: subroutine
-	lda #1		; A = 1
-    ldx #0		; X = 0
-.loop
-	sta Temp1	; save A
-    and #3		; keep lower 2 bits
-    clc		; clear carry before add
-    adc SpriteBuf,x	; add to sprite buffer
-	sta SpriteBuf,x ; store in sprite buffer
-    lda Temp1	; restore A
-    jsr NextRandom	; get next random number
-    inx		; X = X + 1
-    bne .loop	; loop until X wraps
-    rts		; return to caller
 
 
 Update_Sprites: subroutine
@@ -174,50 +129,6 @@ Update_Sprites: subroutine
 	rts
 
 
-Init_Sprites: subroutine
-
-	ldx #0		; index
-    ldy #4 * 3	; counter
-.loop	
-	lda OAM_Data_Init,x
-    sta SpriteBuf,x ; store in sprite buffer
-    inx		; increment index
-    dey		; decrement counter
-    bne .loop	; 
-    rts
-
-
-
-Init_Vars: subroutine
-
-	lda #128 - 4
-    sta Ball_X
-
-	lda #120 - 4
-    sta Ball_Y
-    sta P1_Y
-
-	; lda #200
-	lda #16
-    sta P1_X
-
-	lda #16
-    sta P1_Height
-    
-    lda #8
-    sta P1_Width
-    sta Ball_Width
-    sta Ball_Height
-
-	lda #-1
-    sta Ball_DX
-
-	lda #1
-    sta Ball_DY
-	
-	rts
-    
-
 
 Move_Ball: subroutine
 	
@@ -249,133 +160,22 @@ Move_Ball: subroutine
     
     
     
-Read_Input: subroutine
-	jsr ReadJoypad0	; read first controller
-    
-	and #%00001100	; keep bits 3 and 2 (up and down)
-	
-	tax		; X = A
-
-    ; if (input == DOWN) P1_Y++
-    cmp #4
-    bne .cont_1
-
-    lda P1_Y
-    clc		; clear carry
-    adc #1
-    sta P1_Y
-    
-	; if (P1_Y == 240-16-16) P1_Y--
-    cmp #240-16-16
-    bne .cont_1
-
-	dec P1_Y
-
-	jmp .return
-
-.cont_1:
-	txa		; A = X
-
-	; if (input == UP) P1_Y--
-	cmp #8
-    bne .return
-    
-    lda P1_Y
-    sec		; set carry
-    sbc #1
-    sta P1_Y
-
-	; if (P1_Y == 0+8) P1_Y++
-    cmp #0+8
-    bne .return
-
-	inc P1_Y
-
-.return:
-
-	rts
-
-
-; Inputs:
-;   X: address of object 1 (x, y coordinates, width, height)
-;   Y: address of object 2 (x, y coordinates, width, height)
-; Output: Carry reset if collision
-Check_Collision: subroutine
-	
-    lda 0,Y                     ; A = x2
-    sec		                    ; set carry
-    sbc 0,X                     ; calculate x2 - x1
-    bcc .x1Larger               ; jump if carry NOT set (x1 is larger)
-
-    ; --- x1 is smaller or equal
-
-    sec		                    ; set carry
-    sbc 2,X                     ; compare with width 1
-
-    ;cmp 2,X                     ; compare A with width1
-    bcs .noCollision            ; jump if carry set (no collision)
-
-    ; Collision
-
-    rts
-
-.x1Larger:
-
-; .eternalLoop:
-;     jmp .eternalLoop ; debug
-
-
-    ; ; negate A
-    ; sta Temp1
-    ; lda #0
-    ; sec		                    ; set carry
-    ; sbc Temp1
-
-    lda 0,X                     ; A = x1
-    sec		                    ; set carry
-    sbc 0,Y                     ; calculate x1 - x2
 
 
 
-    sec		                    ; set carry
-    sbc 2,Y                     ; compare with width 2
-
-    bcs .noCollision            ; jump if carry set (no collision)
-
-    ; Collision
-
-; .eternalLoop:    
-;     jmp .eternalLoop ; debug
-
-    rts                         ; return with carry NOT set (Collision)
-
-.noCollision:
-    rts
-
-    ; cmp 0,X		; compare A with Obj_1.X
-    ; cmp 1,X		; compare A with Obj_1.Y
-    
-    ; cmp 0,Y		; compare A with Obj_2.X
-    ; cmp 1,Y		; compare A with Obj_2.Y
-    
-; comparisons: CMP, CPX, CPY
-
-;Relation	Z	C	N
-;register < operand	0	0	sign-bit of result
-;register = operand	1	1	0
-;register > operand	0	1	sign-bit of result
-;Meaning, we may dertermine the derivative relation "greater than or equal" (gte) by
-;checking just the carry flag (using instruction BCS):
-
-;Relation	Z	C	N
-;register ≥ operand	x	1	sign-bit of result
 
 
     
 ;;;;; COMMON SUBROUTINES
 
-	include "nesppu.dasm"
+	include "includes/nesppu.dasm"
+	
+    include "includes/common-routines.dasm"
 
+    include "init/init-sprites.dasm"
+    include "init/init-vars.dasm"
+    
+    include "game-logic/read-input.dasm"
 
 
 
@@ -403,7 +203,15 @@ NMIHandler: subroutine
     jsr Check_Collision
     bcs .noCollision
 
+    ; if (Ball_DX == 1) Ball_DX = -1; else Ball_DX = 1;
+    lda Ball_DX
+    cmp #1
+    beq .minus1
 	lda #1
+    jmp .cont
+.minus1:
+	lda #-1
+.cont:
     sta Ball_DX
 
 .noCollision:
@@ -425,7 +233,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.13", 0
+	.byte "Pong NES Test !!! v.0.0.14", 0
     ;.byte 0		; zero terminator
 
 Palette:

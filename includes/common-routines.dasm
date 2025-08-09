@@ -1,0 +1,79 @@
+; Inputs:
+;   X: address of object 1 (x, y, width, height)
+;   Y: address of object 2 (x, y, width, height)
+; Output: Carry reset if collision
+Check_Collision: subroutine
+	
+    lda 0,Y                     ; A = x2
+    sec		                    ; set carry
+    sbc 0,X                     ; calculate x2 - x1
+    bcc .x1Larger               ; jump if carry NOT set (x1 is larger)
+
+    ; --- x1 is smaller or equal
+
+    ; sec		                    ; set carry
+    ; sbc 2,X                     ; compare with width 1
+
+    cmp 2,X                     ; compare A with width 1
+
+    bcs .noCollision            ; jump if carry set (no collision)
+
+    ; Collision
+
+    rts
+
+.x1Larger:
+
+; .eternalLoop:
+;     jmp .eternalLoop ; debug
+
+
+    ; x1 : P1
+    ; x2 : ball
+
+    ; ; negate A
+    ; sta Temp1
+    ; lda #0
+    ; sec		                    ; set carry
+    ; sbc Temp1
+
+    lda 0,X                     ; A = x1
+    sec		                    ; set carry
+    sbc 0,Y                     ; calculate x1 - x2
+
+
+
+    ; sec		                    ; set carry
+    ; sbc 2,Y                     ; compare with width 2
+    
+    cmp 2,Y                     ; compare A with width 2
+
+    bcs .noCollision            ; jump if carry set (no collision)
+
+    ; Collision
+
+; .eternalLoop:    
+;     jmp .eternalLoop ; debug
+
+    rts                         ; return with carry NOT set (Collision)
+
+.noCollision:
+    rts
+
+    ; cmp 0,X		; compare A with Obj_1.X
+    ; cmp 1,X		; compare A with Obj_1.Y
+    
+    ; cmp 0,Y		; compare A with Obj_2.X
+    ; cmp 1,Y		; compare A with Obj_2.Y
+    
+; comparisons: CMP, CPX, CPY
+
+;Relation	Z	C	N
+;register < operand	0	0	sign-bit of result
+;register = operand	1	1	0
+;register > operand	0	1	sign-bit of result
+;Meaning, we may dertermine the derivative relation "greater than or equal" (gte) by
+;checking just the carry flag (using instruction BCS):
+
+;Relation	Z	C	N
+;register ≥ operand	x	1	sign-bit of result

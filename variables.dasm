@@ -1,0 +1,25 @@
+	seg.u ZEROPAGE
+	org $0
+
+P1_Addr:
+P1_X		byte	; 
+P1_Y		byte	; 
+P1_Width	byte	; 
+P1_Height	byte	; 
+
+Ball_Addr:
+Ball_X		byte	;
+Ball_Y		byte	;
+Ball_Width	byte	;
+Ball_Height	byte	;
+Ball_DX		byte	;
+Ball_DY		byte	;
+
+Temp1		byte	;
+
+; Adresses
+; P1_Addr     equ #0
+; Ball_Addr   equ #4
+
+; OAM sprite buffer
+SpriteBuf	equ	$200
