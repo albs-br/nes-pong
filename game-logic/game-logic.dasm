@@ -1,0 +1,32 @@
+Game_Logic: subroutine
+	;jsr MoveSprites	; move sprites
+	jsr Read_Input
+    jsr Move_Ball
+    
+
+
+    ; --- Check collision P1 x Ball
+    ldx #P1_Addr
+    ldy #Ball_Addr
+    jsr Check_Collision
+    bcs .noCollision
+
+    ; if (Ball_DX == 1) Ball_DX = -1; else Ball_DX = 1;
+    lda Ball_DX
+    cmp #1
+    beq .minus1
+	lda #1
+    jmp .cont
+.minus1:
+	lda #-1
+.cont:
+    sta Ball_DX
+
+.noCollision:
+
+
+
+
+    jsr Update_Sprites
+    
+    rts

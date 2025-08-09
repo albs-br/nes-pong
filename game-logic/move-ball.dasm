@@ -1,0 +1,27 @@
+Move_Ball: subroutine
+	
+    ; Ball_X += Ball_DX
+	
+	lda Ball_X	; A = Ball_X
+    clc		; clear carry
+    adc Ball_DX	; A = A + Ball_DX
+    sta Ball_X	; Ball_X = A
+
+	; if (Ball_X == 255-8) Ball_DX = -1
+    cmp #0 + 8
+    bne .continue
+
+	lda #1
+    sta Ball_DX
+
+.continue:
+	; if (Ball_X == 255-8) Ball_DX = -1
+	lda Ball_X
+    cmp #255 - 8 - 8
+    bne .return
+
+	lda #-1
+    sta Ball_DX
+    
+.return:
+	rts

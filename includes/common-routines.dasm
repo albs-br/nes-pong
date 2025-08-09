@@ -4,6 +4,7 @@
 ; Output: Carry reset if collision
 Check_Collision: subroutine
 	
+    ; --------- Check X axis collision
     lda 0,Y                     ; A = x2
     sec		                    ; set carry
     sbc 0,X                     ; calculate x2 - x1
@@ -20,28 +21,14 @@ Check_Collision: subroutine
 
     ; Collision
 
-    rts
+    ; rts
+    jmp .check_Y
 
 .x1Larger:
-
-; .eternalLoop:
-;     jmp .eternalLoop ; debug
-
-
-    ; x1 : P1
-    ; x2 : ball
-
-    ; ; negate A
-    ; sta Temp1
-    ; lda #0
-    ; sec		                    ; set carry
-    ; sbc Temp1
 
     lda 0,X                     ; A = x1
     sec		                    ; set carry
     sbc 0,Y                     ; calculate x1 - x2
-
-
 
     ; sec		                    ; set carry
     ; sbc 2,Y                     ; compare with width 2
@@ -55,10 +42,68 @@ Check_Collision: subroutine
 ; .eternalLoop:    
 ;     jmp .eternalLoop ; debug
 
+    ;rts                         ; return with carry NOT set (Collision)
+
+
+
+
+.check_Y:
+    ; --------- Check Y axis collision
+    lda 1,Y                     ; A = y2
+    sec		                    ; set carry
+    sbc 1,X                     ; calculate y2 - y1
+    bcc .y1Larger               ; jump if carry NOT set (y1 is larger)
+
+    ; --- y1 is smaller or equal
+
+    ; sec		                    ; set carry
+    ; sbc 3,X                     ; compare with height 1
+
+    cmp 3,X                     ; compare A with height 1
+
+    bcs .noCollision            ; jump if carry set (no collision)
+
+    ; Collision
+
     rts                         ; return with carry NOT set (Collision)
+
+.y1Larger:
+
+    lda 1,X                     ; A = y1
+    sec		                    ; set carry
+    sbc 1,Y                     ; calculate y1 - y2
+
+    ; sec		                    ; set carry
+    ; sbc 3,Y                     ; compare with height 2
+    
+    cmp 3,Y                     ; compare A with height 2
+
+    bcs .noCollision            ; jump if carry set (no collision)
+
+    ; Collision
+
+; .eternalLoop:    
+;     jmp .eternalLoop ; debug
+
+    rts                         ; return with carry NOT set (Collision)
+
+
+
 
 .noCollision:
     rts
+
+
+
+
+
+
+
+
+
+
+
+
 
     ; cmp 0,X		; compare A with Obj_1.X
     ; cmp 1,X		; compare A with Obj_1.Y
