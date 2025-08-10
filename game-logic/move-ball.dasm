@@ -1,27 +1,52 @@
 Move_Ball: subroutine
 	
-    ; Ball_X += Ball_DX
+    ; ------- Ball_X += Ball_DX
 	
 	lda Ball_X	; A = Ball_X
-    clc		; clear carry
-    adc Ball_DX	; A = A + Ball_DX
+    clc		    ; clear carry
+    adc Ball_DX	; A += Ball_DX
     sta Ball_X	; Ball_X = A
 
-	; if (Ball_X == 255-8) Ball_DX = -1
+	; if (Ball_X == 0+8) Ball_DX = +1
     cmp #0 + 8
-    bne .continue
+    bne .cont_1
 
 	lda #1
     sta Ball_DX
 
-.continue:
-	; if (Ball_X == 255-8) Ball_DX = -1
+.cont_1:
+	; if (Ball_X == 255-8-8) Ball_DX = -1
 	lda Ball_X
     cmp #255 - 8 - 8
-    bne .return
+    bne .ball_Y
 
 	lda #-1
     sta Ball_DX
-    
+
+.ball_Y:
+
+    ; ------- Ball_Y += Ball_DY
+	
+	lda Ball_Y	; A = Ball_Y
+    clc		    ; clear carry
+    adc Ball_DY	; A += Ball_DY
+    sta Ball_Y	; Ball_Y = A
+
+	; if (Ball_Y == 0+8) Ball_DY = +1
+    cmp #0 + 8
+    bne .cont_2
+
+	lda #1
+    sta Ball_DY
+
+.cont_2:
+	; if (Ball_Y == 240-8-8) Ball_DY = -1
+	lda Ball_Y
+    cmp #240 - 8 - 8
+    bne .return
+
+	lda #-1
+    sta Ball_DY
+
 .return:
 	rts
