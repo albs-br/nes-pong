@@ -1,6 +1,7 @@
 Game_Logic: subroutine
 	;jsr MoveSprites	; move sprites
 	jsr Read_Input
+    jsr Move_P2
     jsr Move_Ball
     
 

@@ -6,16 +6,22 @@ Init_Vars: subroutine
 	lda #120 - 4
     sta Ball_Y
     sta P1_Y
+    sta P2_Y
 
 	; lda #200
 	lda #16
     sta P1_X
 
+	lda #240-16
+    sta P2_X
+
 	lda #16
     sta P1_Height
+    sta P2_Height
     
     lda #4
     sta P1_Width
+    sta P2_Width
 
     lda #8
     sta Ball_Width

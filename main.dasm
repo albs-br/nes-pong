@@ -104,6 +104,7 @@ FillVRAM: subroutine
     
     include "game-logic/game-logic.dasm"
     include "game-logic/read-input.dasm"
+    include "game-logic/move-p2.dasm"
     include "game-logic/move-ball.dasm"
     include "game-logic/update-sprites.dasm"
 
@@ -135,7 +136,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.16", 0
+	.byte "Pong NES Test !!! v.0.0.17", 0
     ;.byte 0		; zero terminator
 
 Palette:
@@ -150,13 +151,13 @@ Palette:
     hex 1c2c3c	;sprite 3
 
 OAM_Data_Init:
-	; Ball
+	; --- Ball
     .byte 	0	; Y
     .byte	25	; tile #
     .byte	0	; attributes
     .byte	0	; X
 
-	; P1
+	; --- P1
     .byte 	0	; Y
     .byte	133	; tile #
     .byte	0	; attributes
@@ -165,9 +166,17 @@ OAM_Data_Init:
     ;	  Y, tile #, attrib,	X
     .byte	0, 	133, 	0, 	0
 
-Ball_OAM_Addr           equ 0
-P1_Spr_1_OAM_Addr       equ 4
-P1_Spr_2_OAM_Addr       equ 8
+	; --- P2
+    ;	  Y, tile #, attrib,	X
+    .byte	0, 	133, 	3, 	0
+    .byte	0, 	133, 	0, 	0
+;OAM_Data_Init_size equ $ - OAM_Data_Init
+
+Ball_OAM_Addr           equ 0 * 4
+P1_Spr_1_OAM_Addr       equ 1 * 4
+P1_Spr_2_OAM_Addr       equ 2 * 4
+P2_Spr_1_OAM_Addr       equ 3 * 4
+P2_Spr_2_OAM_Addr       equ 4 * 4
 
 ;;;;; CPU VECTORS
 

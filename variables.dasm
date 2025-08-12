@@ -7,6 +7,12 @@ P1_Y		byte	;
 P1_Width	byte	; 
 P1_Height	byte	; 
 
+P2_Addr:
+P2_X		byte	; 
+P2_Y		byte	; 
+P2_Width	byte	; 
+P2_Height	byte	; 
+
 Ball_Addr:
 Ball_X		byte	;
 Ball_Y		byte	;

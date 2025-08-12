@@ -1,7 +1,7 @@
 Init_Sprites: subroutine
 
 	ldx #0		; index
-    ldy #4 * 3	; counter
+    ldy #4 * 5	; counter
 .loop	
 	lda OAM_Data_Init,x
     sta SpriteBuf,x ; store in sprite buffer

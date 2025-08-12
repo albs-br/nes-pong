@@ -1,0 +1,31 @@
+Move_P2: subroutine
+
+	; if (Ball_Y >= P2_Y) P2_Y++
+	lda Ball_Y	; A = Ball_Y
+    cmp P2_Y    ; 
+    bcs .P2_Down
+
+	; if (Ball_Y < P2_Y) P2_Y--
+    cmp P2_Y    ; 
+    bcc .P2_Up
+
+.return:
+	rts
+
+.P2_Down:
+	; if (P2_Y == 240-8-16) return; else P2_Y++;
+	lda P2_Y
+    cmp #240 - 8 - 16
+    beq .return
+
+    inc P2_Y
+    rts
+
+.P2_Up:
+	; if (P2_Y == 0 + 8) return; else P2_Y--;
+	lda P2_Y
+    cmp #0 + 8
+    beq .return
+
+    dec P2_Y
+    rts
