@@ -23,6 +23,10 @@ Init_Vars: subroutine
     sta P1_Width
     sta P2_Width
 
+    lda #0
+    sta P1_Score
+    sta P2_Score
+
     lda #8
     sta Ball_Width
     sta Ball_Height

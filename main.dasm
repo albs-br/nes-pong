@@ -106,6 +106,7 @@ FillVRAM: subroutine
     include "game-logic/read-input.dasm"
     include "game-logic/move-p2.dasm"
     include "game-logic/move-ball.dasm"
+    include "game-logic/update-score.dasm"
     include "game-logic/update-sprites.dasm"
 
 
@@ -136,7 +137,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.17", 0
+	.byte "Pong NES Test !!! v.0.0.18", 0
     ;.byte 0		; zero terminator
 
 Palette:

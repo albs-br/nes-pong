@@ -6,12 +6,14 @@ P1_X		byte	;
 P1_Y		byte	; 
 P1_Width	byte	; 
 P1_Height	byte	; 
+P1_Score    byte    ;
 
 P2_Addr:
 P2_X		byte	; 
 P2_Y		byte	; 
 P2_Width	byte	; 
 P2_Height	byte	; 
+P2_Score    byte    ;
 
 Ball_Addr:
 Ball_X		byte	;

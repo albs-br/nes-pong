@@ -3,6 +3,7 @@ Game_Logic: subroutine
 	jsr Read_Input
     jsr Move_P2
     jsr Move_Ball
+    jsr Update_Score
     
 
 

@@ -1,0 +1,16 @@
+Update_Score: subroutine
+; set PPU address to name table A (row 1, col 1)
+	; PPU_SETADDR $2021 + 64 + 16 - 2
+
+    ; lda #32         ; ascii char
+ 	; sta PPU_DATA	; store+advance PPU
+
+; 	ldy #0		; set Y counter to 0
+; .loop:
+; 	lda HelloMsg,y	; get next character
+;     beq .end	; is 0? exit loop
+; 	sta PPU_DATA	; store+advance PPU
+;     iny		; next character
+; 	bne .loop	; loop
+; .end
+    rts		; return to caller

@@ -32,21 +32,25 @@ Move_Ball: subroutine
     adc Ball_DY	; A += Ball_DY
     sta Ball_Y	; Ball_Y = A
 
-	; if (Ball_Y == 0+8) Ball_DY = +1
+	; if (Ball_Y == 0+8) { Ball_DY = +1; P2_Score++; }
     cmp #0 + 8
     bne .cont_2
 
 	lda #1
     sta Ball_DY
 
+    inc P2_Score
+
 .cont_2:
-	; if (Ball_Y == 240-8-8) Ball_DY = -1
+	; if (Ball_Y == 240-8-8) { Ball_DY = -1; P1_Score++; }
 	lda Ball_Y
     cmp #240 - 8 - 8
     bne .return
 
 	lda #-1
     sta Ball_DY
+
+    inc P1_Score
 
 .return:
 	rts
