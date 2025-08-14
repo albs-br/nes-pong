@@ -11,7 +11,7 @@ Game_Logic: subroutine
     ldx #P1_Addr
     ldy #Ball_Addr
     jsr Check_Collision
-    bcs .noCollision
+    bcs .noCollision_P1
 
     ; if (Ball_DX == 1) Ball_DX = -1; else Ball_DX = 1;
     lda Ball_DX
@@ -24,8 +24,28 @@ Game_Logic: subroutine
 .cont:
     sta Ball_DX
 
-.noCollision:
+.noCollision_P1:
 
+
+
+    ; --- Check collision P2 x Ball
+    ldx #P2_Addr
+    ldy #Ball_Addr
+    jsr Check_Collision
+    bcs .noCollision_P2
+
+    ; if (Ball_DX == 1) Ball_DX = -1; else Ball_DX = 1;
+    lda Ball_DX
+    cmp #1
+    beq .minus1_P2
+	lda #1
+    jmp .cont_P2
+.minus1_P2:
+	lda #-1
+.cont_P2:
+    sta Ball_DX
+
+.noCollision_P2:
 
 
 

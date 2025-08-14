@@ -137,7 +137,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.18", 0
+	.byte "Pong NES Test !!! v.0.0.19", 0
     ;.byte 0		; zero terminator
 
 Palette:
