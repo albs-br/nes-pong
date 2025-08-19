@@ -1,9 +1,9 @@
 Update_Score: subroutine
-; set PPU address to name table A (row 1, col 1)
-	; PPU_SETADDR $2021 + 64 + 16 - 2
+; set PPU address to name table A (row ?, col ?)
+	PPU_SETADDR $2041; + 64 + 16 - 2
 
-    ; lda #32         ; ascii char
- 	; sta PPU_DATA	; store+advance PPU
+    lda #40         ; ascii char
+ 	sta PPU_DATA	; store+advance PPU
 
 ; 	ldy #0		; set Y counter to 0
 ; .loop:

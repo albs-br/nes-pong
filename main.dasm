@@ -27,6 +27,14 @@ Start:	subroutine
 	;jsr FillVRAM		;set PPU RAM
 	jsr HelloVRAM	; print message in name table
 
+
+; ; ------ debug
+; ; set PPU address to name table A (row ?, col ?)
+; 	PPU_SETADDR $2041 ;+ 64 + 16 - 2 ; additions not working
+;     lda #32+10         ; ascii char
+;  	sta PPU_DATA	; store+advance PPU
+
+
     jsr WaitSync		;wait for VSYNC (and PPU warmup)
     ;jsr InitSprites
 	;jsr Test_Sprites
@@ -137,7 +145,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.19", 0
+	.byte "Pong NES Test !!! v.0.0.20", 0
     ;.byte 0		; zero terminator
 
 Palette:
