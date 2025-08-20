@@ -24,19 +24,18 @@ Start:	subroutine
 
 ; set palette and nametable VRAM
 	jsr SetPalette	; set palette colors
-	;jsr FillVRAM		;set PPU RAM
+	; jsr FillVRAM		;set PPU RAM
 	jsr HelloVRAM	; print message in name table
 
 
-; ; ------ debug
-; ; set PPU address to name table A (row ?, col ?)
-; 	PPU_SETADDR $2041 ;+ 64 + 16 - 2 ; additions not working
-;     lda #32+10         ; ascii char
-;  	sta PPU_DATA	; store+advance PPU
+; ------ debug
+; set PPU address to name table A (row ?, col ?)
+	PPU_SETADDR $218F ;+ 64 + 16 - 2 ; additions not working
+    lda #32+10         ; ascii char
+ 	sta PPU_DATA	; store+advance PPU
 
 
     jsr WaitSync		;wait for VSYNC (and PPU warmup)
-    ;jsr InitSprites
 	;jsr Test_Sprites
     jsr Init_Sprites
     jsr Init_Vars
@@ -124,14 +123,31 @@ FillVRAM: subroutine
 
 NMIHandler: subroutine
 	SAVE_REGS
-    
-    ; code here
+
+
+
+    ; ; --------------------
+    ; lda #0
+    ; sta PPU_CTRL		;disable NMI interrupts
+
+
 
 	; load sprites
 	lda #$02	; page 2 ($0200)
     sta PPU_OAM_DMA	; start DMA transfer
 
     jsr Game_Logic
+
+
+
+
+    ; ; --------------------
+    ; lda #CTRL_NMI
+    ; sta PPU_CTRL	; enable NMI
+
+
+
+
 
 	RESTORE_REGS
 	rti
@@ -145,7 +161,7 @@ NMIHandler: subroutine
 
 ; ASCII message to display on screen
 HelloMsg:
-	.byte "Pong NES Test !!! v.0.0.20", 0
+	.byte "Pong NES Test !!! v.0.0.21", 0
     ;.byte 0		; zero terminator
 
 Palette:
