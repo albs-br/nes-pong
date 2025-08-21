@@ -5,9 +5,10 @@ Update_Score: subroutine
 ; ; set PPU address to name table A (row ?, col ?)
 ; 	PPU_SETADDR $2141; + 64 + 16 - 2
 
-;     lda #40         ; ascii char
+;     lda #$30         ; ascii char '0'
 ;  	sta PPU_DATA	; store+advance PPU
 
+;     PPU_SETADDR $2000	; reset PPU address
 
 
 
